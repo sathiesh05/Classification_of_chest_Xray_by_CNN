@@ -31,7 +31,7 @@ git clone https://github.com/sathiesh05/Classification_of_chest_Xray_by_CNN.git
 2. Navigate to the project directory:
 
 ```bash
-cd xray-classifier
+cd Classification_of_chest_Xray_by_CNN
 ```
 
 3. Install the required dependencies:
