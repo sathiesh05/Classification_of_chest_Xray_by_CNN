@@ -25,7 +25,7 @@ This is a Streamlit-based application that allows users to upload chest X-ray im
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/sathiesh05/xray-classifier.git
+git clone https://github.com/sathiesh05/Classification_of_chest_Xray_by_CNN.git
 ```
 
 2. Navigate to the project directory:
@@ -65,4 +65,4 @@ To deploy the application, you can use a platform like Streamlit Sharing or host
 
 ## Contributing
 
-If you find any issues or would like to contribute to the project, please feel free to open an issue or submit a pull request on the [GitHub repository](https://github.com/sathiesh05/xray-classifier).
+If you find any issues or would like to contribute to the project, please feel free to open an issue or submit a pull request on the [GitHub repository](https://github.com/sathiesh05/Classification_of_chest_Xray_by_CNN).
