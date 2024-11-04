@@ -10,7 +10,7 @@ This is a Streamlit-based application that allows users to upload chest X-ray im
 - Visualization of the input image with the predicted class and confidence score
 - Probability distribution for the predicted classes
 
-##Dataset Link
+## Dataset Link
 
 ```bash
 https://www.kaggle.com/datasets/siddikaatiya/chest-xray
