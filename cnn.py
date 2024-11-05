@@ -1,102 +1,50 @@
-import tensorflow as tf
 import numpy as np
+import tensorflow as tf
+from tensorflow.keras.models import load_model
 import streamlit as st
-from PIL import Image
-import matplotlib.pyplot as plt
 
-# Function to predict class of an X-ray image
-def predict_xray(image, model, img_height=128, img_width=128, class_names=['NORMAL', 'PNEUMONIA']):
-    try:
-        # Preprocess the image
-        img = image.resize((img_height, img_width))
-        # Convert grayscale to RGB if necessary
-        if img.mode != 'RGB':
-            img = img.convert('RGB')
-        img_array = tf.keras.utils.img_to_array(img)
-        img_array = img_array / 255.0  # Normalize pixel values
-        img_array = tf.expand_dims(img_array, 0)  # Create batch axis
+train_dataset_path = r'D:\archive\chest_xray\train'
 
-        # Make prediction
-        predictions = model.predict(img_array, verbose=0)
+# Load datasets
+batch_size = 64
+img_height = 128
+img_width = 128
 
-        # Apply softmax since your model outputs logits
-        predictions = tf.nn.softmax(predictions)
+train_ds = tf.keras.utils.image_dataset_from_directory(
+    train_dataset_path,
+    seed=123,
+    image_size=(img_height, img_width),
+    batch_size=batch_size
+)
+# Get class names
+class_names = train_ds.class_names
 
-        # Get predicted class and confidence
-        predicted_class_index = np.argmax(predictions[0])
-        confidence = float(predictions[0][predicted_class_index])
+# Load the pre-trained model
+model = load_model(r'final.keras')
 
-        # Prepare results
-        results = {
-            'predicted_class': class_names[predicted_class_index],
-            'confidence': confidence,
-            'probabilities': {
-                class_names[i]: float(prob)
-                for i, prob in enumerate(predictions[0])
-            }
-        }
-        
-        return results
+# Streamlit interface
+st.title("Chest X-ray Image Classification")
 
-    except Exception as e:
-        st.error(f"Error during prediction: {str(e)}")
-        return None
+# User input for selecting an image from the training dataset
+t = st.number_input("Enter an index (0 to 63) to select an image randomly from the dataset:", value=0, min_value=0, max_value=63)
+# Cast the value of t to an integer
+t = int(t)
+def normalize_image(image):
+    return tf.cast(image, tf.float32) / 255.0
 
-# Load the model outside the function to avoid reloading it for each prediction
-@st.cache_resource
-def load_model(model_path='final.h5'):
-    return tf.keras.models.load_model(model_path)
+if st.button("Predict"):
+    # Predicting the class for the selected image
+    predictions = model.predict(train_ds.take(1))
+    ind = np.argmax(predictions[t])
+    predicted_class = class_names[ind]
+    # Displaying the selected image
+    image = list(train_ds.take(1))[0][0][t].numpy().astype("uint8")
+    normalize_image(image)
+    st.image(image,width=400)
+    # Displaying the predicted class name
+    st.write(f"Predicted class for the selected image: {predicted_class}")
 
-# Streamlit App
-def main():
-    st.title("X-ray Image Classifier")
-    st.write("Upload an X-ray image to predict if it's NORMAL or PNEUMONIA.")
-
-    model = load_model()
-
-    # Single image upload
-    uploaded_file = st.file_uploader("Choose an X-ray image...", type=["jpg", "jpeg", "png"])
-
-    if uploaded_file is not None:
-        # Load image from uploaded file
-        image = Image.open(uploaded_file)
-        st.image(image, caption="Uploaded Image", use_column_width=True)
-        
-        st.write("Classifying...")
-        result = predict_xray(image, model)
-        
-        if result:
-            st.write(f"Predicted Class: **{result['predicted_class']}**")
-            st.write(f"Confidence: **{result['confidence']:.2%}**")
-            st.write("Class Probabilities:")
-            for class_name, prob in result['probabilities'].items():
-                st.write(f"{class_name}: {prob:.2%}")
-            
-            # Display image with prediction
-            fig, ax = plt.subplots()
-            ax.imshow(image)
-            ax.set_title(f"Predicted: {result['predicted_class']} ({result['confidence']:.2%})")
-            ax.axis('off')
-            st.pyplot(fig)
-
-    # Batch image upload
-    st.write("Or upload multiple X-ray images for batch prediction.")
-    batch_uploaded_files = st.file_uploader("Choose multiple images...", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
-
-    if batch_uploaded_files:
-        st.write("Batch Processing Results:")
-        for uploaded_file in batch_uploaded_files:
-            image = Image.open(uploaded_file)
-            st.image(image, caption=f"Processing: {uploaded_file.name}", use_column_width=True)
-            result = predict_xray(image, model)
-            
-            if result:
-                st.write(f"**{uploaded_file.name}**")
-                st.write(f"Predicted Class: **{result['predicted_class']}**")
-                st.write(f"Confidence: **{result['confidence']:.2%}**")
-                st.write("Class Probabilities:")
-                for class_name, prob in result['probabilities'].items():
-                    st.write(f"{class_name}: {prob:.2%}")
-
-if __name__ == "__main__":
-    main()
+# Displaying probability scores for each class
+    st.write("Probability scores:")
+    for i, class_name in enumerate(class_names):
+        st.write(f"{class_name}: {predictions[t][i]}")
