@@ -13,7 +13,7 @@ This is a Streamlit-based application that allows users to upload chest X-ray im
 ## Dataset Link
 
 ```bash
-https://www.kaggle.com/datasets/siddikaatiya/chest-xray
+https://www.kaggle.com/datasets/paultimothymooney/chest-xray-pneumonia
 ```
 
 ## Prerequisites
