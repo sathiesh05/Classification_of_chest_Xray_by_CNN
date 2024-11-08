@@ -16,18 +16,14 @@ train_ds = tf.keras.utils.image_dataset_from_directory(
     image_size=(img_height, img_width),
     batch_size=batch_size
 )
-# Get class names
+
 class_names = train_ds.class_names
 
-# Load the pre-trained model
-model = load_model(r'final.keras')
+model = load_model(r'final.h5')
 
-# Streamlit interface
 st.title("Chest X-ray Image Classification")
 
-# User input for selecting an image from the training dataset
 t = st.number_input("Enter an index (0 to 63) to select an image randomly from the dataset:", value=0, min_value=0, max_value=63)
-# Cast the value of t to an integer
 t = int(t)
 def normalize_image(image):
     return tf.cast(image, tf.float32) / 255.0
@@ -37,11 +33,11 @@ if st.button("Predict"):
     predictions = model.predict(train_ds.take(1))
     ind = np.argmax(predictions[t])
     predicted_class = class_names[ind]
-    # Displaying the selected image
+
     image = list(train_ds.take(1))[0][0][t].numpy().astype("uint8")
     normalize_image(image)
     st.image(image,width=400)
-    # Displaying the predicted class name
+
     st.write(f"Predicted class for the selected image: {predicted_class}")
 
 # Displaying probability scores for each class
