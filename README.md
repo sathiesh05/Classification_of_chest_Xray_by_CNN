@@ -1,4 +1,3 @@
-
 # X-ray Image Classifier
 
 This is a Streamlit-based application that allows users to upload chest X-ray images and classify them as either "NORMAL" or "PNEUMONIA" based on a pre-trained deep learning model.
